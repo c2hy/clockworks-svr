@@ -2,6 +2,8 @@ package io.github.c2hy.clockworks.infrastructure.repository;
 
 import io.github.c2hy.clockworks.domain.group.Group;
 import io.github.c2hy.clockworks.domain.group.GroupRepository;
+import io.github.c2hy.clockworks.infrastructure.utils.Extensions;
+import lombok.experimental.ExtensionMethod;
 import org.apache.commons.dbutils.ResultSetHandler;
 
 import java.sql.ResultSet;
@@ -9,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Optional;
 
+@ExtensionMethod({Extensions.class})
 public class PgGroupRepository implements GroupRepository {
     @Override
     public Optional<Group> findById(String groupId) {
@@ -25,16 +28,16 @@ public class PgGroupRepository implements GroupRepository {
                 }
 
                 return Group.createExisted(
-                        resultSet.getString("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("description"),
-                        resultSet.getInt("update_interval_seconds"),
-                        DbClient.timestampToOffsetDateTime(resultSet.getTimestamp("last_update_time")));
+                        resultSet.getString(Group.Fields.id),
+                        resultSet.getString(Group.Fields.name),
+                        resultSet.getString(Group.Fields.description),
+                        resultSet.getInt(Group.Fields.updateIntervalSeconds.toLowerUnderscore()),
+                        resultSet.getTimestamp(Group.Fields.lastUpdateTime.toLowerUnderscore()).toOffsetDateTime());
             }
         };
 
         var group = DbClient.selectFirst(
-                "SELECT id,name,description,update_interval_seconds,last_update_time FROM timer_group WHERE id = ?",
+                "SELECT * FROM timer_group WHERE id = ?",
                 handler,
                 groupId
         );

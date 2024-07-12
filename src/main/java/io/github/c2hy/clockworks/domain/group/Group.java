@@ -3,15 +3,19 @@ package io.github.c2hy.clockworks.domain.group;
 import io.github.c2hy.clockworks.infrastructure.Changeable;
 import io.github.c2hy.clockworks.infrastructure.Changes;
 import io.github.c2hy.clockworks.infrastructure.Checkable;
+import io.github.c2hy.clockworks.infrastructure.utils.Checking;
 import lombok.Getter;
 import lombok.experimental.Delegate;
+import lombok.experimental.ExtensionMethod;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
-import static io.github.c2hy.clockworks.infrastructure.utils.Checking.exceptOrThrow;
 import static io.github.c2hy.clockworks.infrastructure.utils.ObjectUtils.isNotEmpty;
 
+@ExtensionMethod({Checking.class})
+@FieldNameConstants
 public class Group implements Checkable, Changeable {
     @Delegate
     private final Changes changes = new Changes();
@@ -75,18 +79,9 @@ public class Group implements Checkable, Changeable {
 
     @Override
     public void check() {
-        exceptOrThrow(
-                isNotEmpty(id),
-                "illegal id"
-        );
-        exceptOrThrow(
-                name.length() < 15,
-                "illegal name"
-        );
-        exceptOrThrow(
-                description == null || description.length() < 100,
-                "illegal description"
-        );
+        "illegal id".trueOrThrow(isNotEmpty(id));
+        "illegal name".trueOrThrow(name.length() < 15);
+        "illegal description".trueOrThrow(description == null || description.length() < 100);
     }
 
     private void setId(String id) {
@@ -95,7 +90,7 @@ public class Group implements Checkable, Changeable {
         }
 
         this.id = id;
-        this.changes.changed("id", id);
+        this.changes.changed(Fields.id, id);
     }
 
     private void setName(String name) {
@@ -113,7 +108,7 @@ public class Group implements Checkable, Changeable {
         }
 
         this.description = description;
-        this.changes.changed("description", description);
+        this.changes.changed(Fields.description, description);
     }
 
     private void setUpdateIntervalSeconds(int updateIntervalSeconds) {
@@ -122,7 +117,7 @@ public class Group implements Checkable, Changeable {
         }
 
         this.updateIntervalSeconds = updateIntervalSeconds;
-        this.changes.changed("updateIntervalSeconds", updateIntervalSeconds);
+        this.changes.changed(Fields.updateIntervalSeconds, updateIntervalSeconds);
     }
 
     private void setLastUpdateTime(OffsetDateTime now) {
@@ -131,6 +126,6 @@ public class Group implements Checkable, Changeable {
         }
 
         this.lastUpdateTime = now;
-        this.changes.changed("lastUpdateTime", now);
+        this.changes.changed(Fields.lastUpdateTime, now);
     }
 }

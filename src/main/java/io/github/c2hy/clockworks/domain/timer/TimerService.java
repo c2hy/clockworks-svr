@@ -1,10 +1,12 @@
 package io.github.c2hy.clockworks.domain.timer;
 
 import io.github.c2hy.clockworks.domain.group.Group;
+import io.github.c2hy.clockworks.infrastructure.utils.Checking;
 import io.github.c2hy.clockworks.infrastructure.utils.CheckingException;
 import io.github.c2hy.clockworks.infrastructure.utils.ObjectUtils;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -14,8 +16,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.github.c2hy.clockworks.infrastructure.utils.Checking.exceptOrThrow;
-
+@ExtensionMethod({Checking.class})
 @RequiredArgsConstructor
 @Slf4j
 public class TimerService {
@@ -29,7 +30,7 @@ public class TimerService {
         }
 
         var definitionIds = timerDefinitions.stream().map(TimerDefinitionDTO::getId).collect(Collectors.toSet());
-        exceptOrThrow(Objects.equals(definitionIds.size(), timerDefinitions.size()), "id duplication");
+        "id duplication".trueOrThrow(Objects.equals(definitionIds.size(), timerDefinitions.size()));
 
         log.debug("create or update timer {}", definitionIds);
 

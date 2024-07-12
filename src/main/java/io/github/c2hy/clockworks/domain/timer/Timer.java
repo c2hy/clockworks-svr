@@ -4,11 +4,12 @@ import io.github.c2hy.clockworks.infrastructure.Changeable;
 import io.github.c2hy.clockworks.infrastructure.Changes;
 import lombok.Getter;
 import lombok.experimental.Delegate;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Objects;
 
+@FieldNameConstants
 public class Timer implements Changeable {
     @Delegate
     private final Changes changes = new Changes();
@@ -74,7 +75,7 @@ public class Timer implements Changeable {
         }
 
         this.definitionId = definitionId;
-        this.changes().put("definitionId", definitionId);
+        this.changes().put(Fields.definitionId, definitionId);
     }
 
     public void setType(TimerTypeEnum type) {
@@ -92,7 +93,7 @@ public class Timer implements Changeable {
         }
 
         this.groupId = groupId;
-        this.changes().put("groupId", groupId);
+        this.changes().put(Fields.groupId, groupId);
     }
 
     public void setTriggerTime(OffsetDateTime triggerTime) {
@@ -101,7 +102,7 @@ public class Timer implements Changeable {
         }
 
         this.triggerTime = triggerTime;
-        this.changes().put("triggerTime", triggerTime);
+        this.changes().put(Fields.triggerTime, triggerTime);
     }
 
     public void setState(TimerStateEnum state) {
@@ -110,7 +111,7 @@ public class Timer implements Changeable {
         }
 
         this.state = state;
-        this.changes().put("state", state);
+        this.changes().put(Fields.state, state);
     }
 
     private void setCallbackUrl(String callbackUrl) {
@@ -119,21 +120,6 @@ public class Timer implements Changeable {
         }
 
         this.callbackUrl = callbackUrl;
-        this.changes().put("callbackUrl", callbackUrl);
-    }
-
-    @Override
-    public void markOld() {
-        changes.markOld();
-    }
-
-    @Override
-    public boolean isNew() {
-        return changes.isNew();
-    }
-
-    @Override
-    public Map<String, Object> changes() {
-        return changes.changes();
+        this.changes().put(Fields.callbackUrl, callbackUrl);
     }
 }

@@ -2,7 +2,9 @@ package io.github.c2hy.clockworks.infrastructure.repository;
 
 import io.github.c2hy.clockworks.domain.timer.Timer;
 import io.github.c2hy.clockworks.domain.timer.*;
+import io.github.c2hy.clockworks.infrastructure.utils.Extensions;
 import jakarta.annotation.Nullable;
+import lombok.experimental.ExtensionMethod;
 import org.apache.commons.dbutils.ResultSetHandler;
 
 import java.sql.ResultSet;
@@ -10,9 +12,9 @@ import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.*;
 
-import static io.github.c2hy.clockworks.infrastructure.repository.DbClient.multipleQuestionMark;
 import static io.github.c2hy.clockworks.infrastructure.repository.DbClient.transaction;
 
+@ExtensionMethod({Extensions.class})
 public class PgTimerRepository implements TimerRepository {
     @Override
     public Collection<TimerDefinition> findAllById(Collection<String> timerDefinitionIds) {
@@ -29,7 +31,7 @@ public class PgTimerRepository implements TimerRepository {
 
         String[] idsParam = timerDefinitionIds.toArray(new String[0]);
         return DbClient.select(
-                "SELECT * FROM timer_definition WHERE id IN (" + multipleQuestionMark(timerDefinitionIds) + ")",
+                "SELECT * FROM timer_definition WHERE id IN (" + timerDefinitionIds.questionMark() + ")",
                 handler,
                 (Object[]) idsParam);
     }
@@ -58,14 +60,14 @@ public class PgTimerRepository implements TimerRepository {
 
     private static TimerDefinition timerDefinitionSelectMapping(ResultSet resultSet) throws SQLException {
         return TimerDefinition.createExisted(
-                resultSet.getString("id"),
-                resultSet.getString("group_id"),
-                TimerTypeEnum.valueOf(resultSet.getString("type")),
-                resultSet.getString("name"),
-                resultSet.getString("description"),
-                resultSet.getInt("initial_delay_seconds"),
-                resultSet.getInt("interval_seconds"),
-                resultSet.getString("callback_url")
+                resultSet.getString(TimerDefinition.Fields.id),
+                resultSet.getString(TimerDefinition.Fields.groupId.toLowerUnderscore()),
+                TimerTypeEnum.valueOf(resultSet.getString(TimerDefinition.Fields.type)),
+                resultSet.getString(TimerDefinition.Fields.name),
+                resultSet.getString(TimerDefinition.Fields.description),
+                resultSet.getInt(TimerDefinition.Fields.initialDelaySeconds.toLowerUnderscore()),
+                resultSet.getInt(TimerDefinition.Fields.intervalSeconds.toLowerUnderscore()),
+                resultSet.getString(TimerDefinition.Fields.callbackUrl.toLowerUnderscore())
         );
     }
 
@@ -75,7 +77,7 @@ public class PgTimerRepository implements TimerRepository {
         params.add(groupId);
         params.addAll(list);
         transaction(connection -> {
-            DbClient.delete("timer_definition", "group_id = ? AND id NOT IN (" + multipleQuestionMark(list) + ")", params.toArray());
+            DbClient.delete("timer_definition", "group_id = ? AND id NOT IN (" + list.questionMark() + ")", params.toArray());
             DbClient.delete("timer", "group_id = ?", groupId);
         });
     }
@@ -139,7 +141,7 @@ public class PgTimerRepository implements TimerRepository {
             public List<Integer> handle(ResultSet resultSet) throws SQLException {
                 var ids = new ArrayList<Integer>();
                 while (resultSet.next()) {
-                    ids.add(resultSet.getInt("id"));
+                    ids.add(resultSet.getInt(Timer.Fields.id));
                 }
                 return ids;
             }
@@ -175,13 +177,13 @@ public class PgTimerRepository implements TimerRepository {
 
     public static Timer timerSelectMapping(ResultSet resultSet) throws SQLException {
         return Timer.createExisted(
-                resultSet.getInt("id"),
-                resultSet.getString("definition_id"),
-                TimerTypeEnum.valueOf(resultSet.getString("type")),
-                resultSet.getString("group_id"),
-                DbClient.timestampToOffsetDateTime(resultSet.getTimestamp("trigger_time")),
-                TimerStateEnum.valueOf(resultSet.getString("state")),
-                resultSet.getString("callback_url")
+                resultSet.getInt(Timer.Fields.id),
+                resultSet.getString(Timer.Fields.definitionId.toLowerUnderscore()),
+                TimerTypeEnum.valueOf(resultSet.getString(Timer.Fields.type)),
+                resultSet.getString(Timer.Fields.groupId.toLowerUnderscore()),
+                resultSet.getTimestamp(Timer.Fields.triggerTime.toLowerUnderscore()).toOffsetDateTime(),
+                TimerStateEnum.valueOf(resultSet.getString(Timer.Fields.state)),
+                resultSet.getString(Timer.Fields.callbackUrl.toLowerUnderscore())
         );
     }
 }

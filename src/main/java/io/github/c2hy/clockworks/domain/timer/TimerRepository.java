@@ -3,7 +3,6 @@ package io.github.c2hy.clockworks.domain.timer;
 import jakarta.annotation.Nullable;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 public interface TimerRepository {

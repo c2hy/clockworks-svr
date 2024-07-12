@@ -3,21 +3,24 @@ package io.github.c2hy.clockworks.domain.timer;
 import io.github.c2hy.clockworks.infrastructure.Changeable;
 import io.github.c2hy.clockworks.infrastructure.Changes;
 import io.github.c2hy.clockworks.infrastructure.Checkable;
+import io.github.c2hy.clockworks.infrastructure.utils.Checking;
 import io.github.c2hy.clockworks.infrastructure.utils.ObjectUtils;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.experimental.Delegate;
+import lombok.experimental.ExtensionMethod;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
-import static io.github.c2hy.clockworks.infrastructure.utils.Checking.exceptOrThrow;
 import static io.github.c2hy.clockworks.infrastructure.utils.ObjectUtils.isNotEmpty;
 
+@ExtensionMethod({Checking.class})
+@FieldNameConstants
 public class TimerDefinition implements Checkable, Changeable {
     private static final int MIN_INITIAL_DELAY_SECONDS = Integer.parseInt(
             System.getProperty("MIN_INITIAL_DELAY_SECONDS", "3")
@@ -116,29 +119,15 @@ public class TimerDefinition implements Checkable, Changeable {
 
     @Override
     public void check() {
-        exceptOrThrow(
-                isNotEmpty(id),
-                "illegal timer definition id"
+        "illegal timer definition id".trueOrThrow(id.length() < 30);
+        "illegal groupId".trueOrThrow(isNotEmpty(groupId));
+        "illegal name".trueOrThrow(name.length() < 30);
+        "illegal description".trueOrThrow(description.length() < 100);
+        "illegal initialDelaySeconds".trueOrThrow(
+                initialDelaySeconds == -1 || initialDelaySeconds > MIN_INITIAL_DELAY_SECONDS
         );
-        exceptOrThrow(
-                isNotEmpty(groupId),
-                "illegal groupId"
-        );
-        exceptOrThrow(
-                name.length() < 30,
-                "illegal name"
-        );
-        exceptOrThrow(
-                description.length() < 100,
-                "illegal description"
-        );
-        exceptOrThrow(
-                initialDelaySeconds == -1 || initialDelaySeconds > MIN_INITIAL_DELAY_SECONDS,
-                "illegal initialDelaySeconds"
-        );
-        exceptOrThrow(
-                intervalSeconds == -1 || intervalSeconds > MIN_INTERVAL_SECONDS,
-                "illegal intervalSeconds"
+        "illegal intervalSeconds".trueOrThrow(
+                intervalSeconds == -1 || intervalSeconds > MIN_INTERVAL_SECONDS
         );
     }
 
@@ -152,14 +141,12 @@ public class TimerDefinition implements Checkable, Changeable {
     }
 
     private void setGroupId(String groupId) {
-        exceptOrThrow(isNotEmpty(id), "illegal id");
-
         if (Objects.equals(this.groupId, groupId)) {
             return;
         }
 
         this.groupId = groupId;
-        this.changes.changed("groupId", groupId);
+        this.changes.changed(Fields.groupId, groupId);
     }
 
     private void setType(TimerTypeEnum type) {
@@ -168,7 +155,7 @@ public class TimerDefinition implements Checkable, Changeable {
         }
 
         this.type = type;
-        this.changes.changed("type", type);
+        this.changes.changed(Fields.type, type);
     }
 
     private void setName(String name) {
@@ -177,7 +164,7 @@ public class TimerDefinition implements Checkable, Changeable {
         }
 
         this.name = name;
-        this.changes.changed("name", name);
+        this.changes.changed(Fields.name, name);
     }
 
     private void setDescription(String description) {
@@ -186,7 +173,7 @@ public class TimerDefinition implements Checkable, Changeable {
         }
 
         this.description = description;
-        this.changes.changed("description", description);
+        this.changes.changed(Fields.description, description);
     }
 
     private void setInitialDelaySeconds(int initialDelaySeconds) {
@@ -195,7 +182,7 @@ public class TimerDefinition implements Checkable, Changeable {
         }
 
         this.initialDelaySeconds = initialDelaySeconds;
-        this.changes.changed("initialDelaySeconds", initialDelaySeconds);
+        this.changes.changed(Fields.initialDelaySeconds, initialDelaySeconds);
     }
 
     private void setIntervalSeconds(int intervalSeconds) {
@@ -204,7 +191,7 @@ public class TimerDefinition implements Checkable, Changeable {
         }
 
         this.intervalSeconds = intervalSeconds;
-        this.changes.changed("intervalSeconds", intervalSeconds);
+        this.changes.changed(Fields.intervalSeconds, intervalSeconds);
     }
 
     public void setCallbackUrl(String callbackUrl) {
@@ -213,21 +200,6 @@ public class TimerDefinition implements Checkable, Changeable {
         }
 
         this.callbackUrl = callbackUrl;
-        this.changes.changed("callbackUrl", callbackUrl);
-    }
-
-    @Override
-    public void markOld() {
-        changes.markOld();
-    }
-
-    @Override
-    public boolean isNew() {
-        return changes.isNew();
-    }
-
-    @Override
-    public Map<String, Object> changes() {
-        return changes.changes();
+        this.changes.changed(Fields.callbackUrl, callbackUrl);
     }
 }

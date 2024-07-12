@@ -2,7 +2,9 @@ package io.github.c2hy.clockworks.infrastructure.repository;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.c2hy.clockworks.infrastructure.utils.Extensions;
 import jakarta.annotation.Nullable;
+import lombok.experimental.ExtensionMethod;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -11,14 +13,16 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.github.c2hy.clockworks.infrastructure.Configures.*;
 
+@ExtensionMethod({Extensions.class})
 public final class DbClient {
     private final static Logger logger = LoggerFactory.getLogger(DbClient.class);
     private final static HikariDataSource dataSource;
@@ -100,15 +104,15 @@ public final class DbClient {
 
         var firstData = data.get(0);
         var keys = new ArrayList<>(firstData.keySet());
-        var fields = String.join(", ", keys.stream().map(DbClient::camelCaseToUnderscore).toList());
-        var questionMark = multipleQuestionMark(keys);
+        var fields = String.join(", ", keys.stream().map(v -> v.toLowerUnderscore()).toList());
+        var questionMark = keys.questionMark();
         var sql = "INSERT INTO " + table + " (" + fields + ") VALUES " + "(" + questionMark + ")";
         var params = data.stream()
                 .map(map -> keys.stream()
                         .map(v -> {
                             var value = map.get(v);
                             if (value instanceof Enum<?> enumObject) {
-                                return enumParamToString(enumObject);
+                                return enumObject.name();
                             } else {
                                 return value;
                             }
@@ -143,7 +147,7 @@ public final class DbClient {
 
         var keys = new ArrayList<>(data.keySet());
         var questionMark = keys.stream()
-                .map(key -> DbClient.camelCaseToUnderscore(key) + " = ?")
+                .map(key -> key.toLowerUnderscore() + " = ?")
                 .collect(Collectors.joining(", "));
 
         var params = new ArrayList<>();
@@ -182,21 +186,5 @@ public final class DbClient {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static String camelCaseToUnderscore(String camelCase) {
-        return camelCase.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
-    }
-
-    public static OffsetDateTime timestampToOffsetDateTime(Timestamp timestamp) {
-        return timestamp.toInstant().atOffset(OffsetDateTime.now().getOffset());
-    }
-
-    public static String multipleQuestionMark(Collection<?> collection) {
-        return collection.stream().map(key -> "?").collect(Collectors.joining(", "));
-    }
-
-    public static String enumParamToString(Enum<?> enumObject) {
-        return enumObject.name();
     }
 }
