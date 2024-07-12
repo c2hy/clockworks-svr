@@ -1,60 +1,61 @@
-# clockworks-svr
-分布式定时器服务
+<!--- README in English -->
+# Clockworks Server
+Distributed Timer Service
 
 
 
-# 软件架构说明
+# Software Architecture Description
 
-该软件由三个主要部分组成：Clockworks Server、SDK 和 Regular Timing Libs。它们依次依赖，以提供一个全面的时间管理和同步解决方案。以下是每个部分的详细说明：
+This software consists of three main parts: Clockworks Server, SDK, and Regular Timing Libs. They rely on each other to provide a comprehensive time management and synchronization solution. The following is a detailed description of each part:
 
 
 
 ## 1. Clockworks Server
 
-### 功能描述:
+### Functional Description:
 
-- Clockworks Server 是整个系统的核心部分，负责在分布式环境中提供创建定时器的服务，主要用于对定时器精度要求不是很高的场景。
-- 支持高并发访问和分布式部署，以保证系统的可靠性和可扩展性。
+- Clockworks Server is the core part of the entire system, responsible for providing timer creation services in a distributed environment, mainly used in scenarios where high precision for timers is not required.
+- Supports high concurrent access and distributed deployment to ensure system reliability and scalability.
 
 
 
-### 关键组件:
+### Key Components:
 
-- **定时器管理模块**: 允许创建、删除和管理定时器，支持各种定时任务（如一次性定时器、周期性定时器等）。
-- **时间同步模块**: 使用 NTP 或 PTP 协议实现时间同步，确保定时器触发的一致性。
-- **时间管理 API**: 提供 HTTP 接口，供 SDK 和其它客户端访问定时器服务。
-- **日志和监控**: 记录系统操作日志并提供监控接口，以便进行系统健康检查和性能调优。
+- **Timer Management Module**: Allows creation, deletion, and management of timers, supporting various timing tasks (e.g., one-time timers, periodic timers, etc.).
+- **Time Synchronization Module**: Uses NTP or PTP protocols for time synchronization to ensure timer triggering consistency.
+- **Time Management API**: Provides HTTP interfaces for SDK and other clients to access timer services.
+- **Logging and Monitoring**: Records system operation logs and provides monitoring interfaces for system health checks and performance tuning.
 
 
 
 ## 2. SDK
 
-### 功能描述:
+### Functional Description:
 
-- SDK（软件开发工具包）是连接 Clockworks Server 和应用程序的桥梁。
-- 提供简洁易用的接口，帮助开发者集成定时器功能到他们的应用中。
-- 支持多种编程语言（如 Java、Python、C++ 等），以满足不同开发需求。
-
-
-
-### 关键组件:
-
-- **API 封装**: 封装 Clockworks Server 的 API，提供统一的接口供应用程序调用。
-- **定时器客户端**: 实现客户端的定时器逻辑，确保应用程序能够与服务器交互创建和管理定时器。
-- **错误处理和重试机制**: 确保在网络故障或服务器不可用时，SDK 能够处理错误并进行重试。
+- The SDK (Software Development Kit) is the bridge connecting Clockworks Server and applications.
+- Provides simple and easy-to-use interfaces to help developers integrate timer functions into their applications.
+- Supports multiple programming languages (e.g., Java, Python, C++, etc.) to meet different development needs.
 
 
 
-## 3. 常用定时器库模仿实现
+### Key Components:
 
-### 功能描述:
-
-- 保留了常用定时器库的原有 API，而底层则通过 SDK 调用 Clockworks Server 实现定时功能。
-- 通过这种方式，用户可以继续使用熟悉的定时器 API，而无需了解底层的定时器服务实现。
-
+- **API Encapsulation**: Encapsulates Clockworks Server's APIs, providing a unified interface for applications to call.
+- **Timer Client**: Implements client-side timer logic, ensuring that applications can interact with the server to create and manage timers.
+- **Error Handling and Retry Mechanism**: Ensures that the SDK can handle errors and perform retries in case of network failures or server unavailability.
 
 
-### 关键组件:
 
-- **API 兼容层**: 保留原有定时器库的 API，不改变用户的使用方式。
-- **底层切换模块**: 将定时器的底层实现切换为通过 SDK 调用 Clockworks Server，确保分布式环境下的定时器服务。
+## 3. Regular Timing Libs Mock Implementation
+
+### Functional Description:
+
+- Retains the original API of commonly used timer libraries, while the underlying implementation calls Clockworks Server through the SDK to achieve timing functions.
+- In this way, users can continue to use familiar timer APIs without needing to understand the underlying timer service implementation.
+
+
+
+### Key Components:
+
+- **API Compatibility Layer**: Retains the original API of timer libraries without changing the user's usage method.
+- **Underlying Switching Module**: Switches the underlying implementation of timers to call Clockworks Server through the SDK, ensuring timer services in a distributed environment.
