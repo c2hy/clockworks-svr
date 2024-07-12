@@ -6,6 +6,7 @@ import io.github.c2hy.clockworks.infrastructure.Checkable;
 import io.github.c2hy.clockworks.infrastructure.utils.ObjectUtils;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -25,6 +26,7 @@ public class TimerDefinition implements Checkable, Changeable {
             System.getProperty("MIN_INTERVAL_SECONDS", "5")
     );
 
+    @Delegate
     private final Changes changes = new Changes();
 
     @Getter
@@ -81,6 +83,7 @@ public class TimerDefinition implements Checkable, Changeable {
         timerDefinition.initialDelaySeconds = initialDelaySeconds;
         timerDefinition.intervalSeconds = intervalSeconds;
         timerDefinition.callbackUrl = callbackUrl;
+        timerDefinition.markOld();
         return timerDefinition;
     }
 

@@ -4,16 +4,18 @@ import io.github.c2hy.clockworks.infrastructure.Changeable;
 import io.github.c2hy.clockworks.infrastructure.Changes;
 import io.github.c2hy.clockworks.infrastructure.Checkable;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Objects;
 
 import static io.github.c2hy.clockworks.infrastructure.utils.Checking.exceptOrThrow;
 import static io.github.c2hy.clockworks.infrastructure.utils.ObjectUtils.isNotEmpty;
 
 public class Group implements Checkable, Changeable {
+    @Delegate
     private final Changes changes = new Changes();
+
     @Getter
     private String id;
     private String name;
@@ -130,20 +132,5 @@ public class Group implements Checkable, Changeable {
 
         this.lastUpdateTime = now;
         this.changes.changed("lastUpdateTime", now);
-    }
-
-    @Override
-    public void markOld() {
-        changes.markOld();
-    }
-
-    @Override
-    public boolean isNew() {
-        return changes.isNew();
-    }
-
-    @Override
-    public Map<String, Object> changes() {
-        return changes.changes();
     }
 }

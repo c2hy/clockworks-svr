@@ -3,12 +3,14 @@ package io.github.c2hy.clockworks.domain.timer;
 import io.github.c2hy.clockworks.infrastructure.Changeable;
 import io.github.c2hy.clockworks.infrastructure.Changes;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Objects;
 
 public class Timer implements Changeable {
+    @Delegate
     private final Changes changes = new Changes();
 
     @Getter
@@ -54,6 +56,7 @@ public class Timer implements Changeable {
         timer.triggerTime = triggerTime;
         timer.state = state;
         timer.callbackUrl = callbackUrl;
+        timer.markOld();
         return timer;
     }
 
