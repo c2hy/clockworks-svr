@@ -4,6 +4,7 @@ import io.github.c2hy.clockworks.application.*;
 import io.github.c2hy.clockworks.domain.group.GroupService;
 import io.github.c2hy.clockworks.domain.timer.TimerService;
 import io.github.c2hy.clockworks.infrastructure.MockNotificationService;
+import io.github.c2hy.clockworks.infrastructure.OkHttpNotificationService;
 import io.github.c2hy.clockworks.infrastructure.RoutingDispatcher;
 import io.github.c2hy.clockworks.infrastructure.repository.PgGroupRepository;
 import io.github.c2hy.clockworks.infrastructure.repository.PgTimerRepository;
@@ -18,7 +19,7 @@ public class ApplicationStater {
 
         var translations = new PgTranslations();
         var timerRepository = new PgTimerRepository();
-        var notificationService = new MockNotificationService();
+        var notificationService = new OkHttpNotificationService();
         var timerService = new TimerService(timerRepository, notificationService);
 
         var groupRepository = new PgGroupRepository();
@@ -42,6 +43,7 @@ public class ApplicationStater {
                 ChangeTimerRequest.class,
                 manageTimerScope::changeTimer
         );
+        action("ping", SelfPingScope::ping);
 
         RoutingDispatcher.startServer();
         scheduleTimerScope.fixedTimeTrigger();

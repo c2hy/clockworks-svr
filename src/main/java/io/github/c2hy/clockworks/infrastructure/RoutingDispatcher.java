@@ -84,5 +84,6 @@ public class RoutingDispatcher {
         exchange.getResponseSender().send(String.format("""
                 "error": "%s"
                 """, exception.getMessage()));
+        logger.info("actions error", exception);
     }
 }
